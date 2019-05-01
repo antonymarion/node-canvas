@@ -90,9 +90,8 @@ NAN_METHOD(Image::New) {
   Image *img = new Image;
   img->data_mode = DATA_IMAGE;
   img->Wrap(info.This());
-  Local<Context> v8ctx = Nan::GetCurrentContext();
-  info.This()->Set(v8ctx, Nan::New("onload").ToLocalChecked(), Nan::Null());
-  info.This()->Set(v8ctx, Nan::New("onerror").ToLocalChecked(), Nan::Null());
+  Nan::Set(info.This(), Nan::New("onload").ToLocalChecked(), Nan::Null()).ToChecked();
+  Nan::Set(info.This(), Nan::New("onerror").ToLocalChecked(), Nan::Null()).ToChecked();
   info.GetReturnValue().Set(info.This());
 }
 
@@ -264,14 +263,15 @@ NAN_METHOD(Image::SetSource){
         argv[0] = Nan::Error(Nan::New(cairo_status_to_string(status)).ToLocalChecked());
       }
       Local<Context> ctx = Nan::GetCurrentContext();
-      onerrorFn.As<Function>()->Call(ctx, ctx->Global(), 1, argv);
+      Nan::Call(onerrorFn.As<Function>(), ctx->Global(), 1, argv).ToLocalChecked();
     }
   } else {
     img->loaded();
     Local<Context> v8ctx = Nan::GetCurrentContext();
     Local<Value> onloadFn = info.This()->Get(v8ctx, Nan::New("onload").ToLocalChecked()).ToLocalChecked();
     if (onloadFn->IsFunction()) {
-      onloadFn.As<Function>()->Call(v8ctx, v8ctx->Global(), 0, NULL);
+      Local<Context> ctx = Nan::GetCurrentContext();
+      Nan::Call(onloadFn.As<Function>(), ctx->Global(), 0, NULL).ToLocalChecked();
     }
   }
 }

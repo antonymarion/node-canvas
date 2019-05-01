@@ -2683,23 +2683,30 @@ NAN_METHOD(Context2d::MeasureText) {
   cairo_get_matrix(ctx, &matrix);
   double y_offset = getBaselineAdjustment(layout, context->state->textBaseline);
 
-  Local<Context> v8ctx = Nan::GetCurrentContext();
-  obj->Set(v8ctx, Nan::New<String>("width").ToLocalChecked(),
-           Nan::New<Number>(logical_rect.width));
-  obj->Set(v8ctx, Nan::New<String>("actualBoundingBoxLeft").ToLocalChecked(),
-           Nan::New<Number>(x_offset - PANGO_LBEARING(logical_rect)));
-  obj->Set(v8ctx, Nan::New<String>("actualBoundingBoxRight").ToLocalChecked(),
-           Nan::New<Number>(x_offset + PANGO_RBEARING(logical_rect)));
-  obj->Set(v8ctx, Nan::New<String>("actualBoundingBoxAscent").ToLocalChecked(),
-           Nan::New<Number>(y_offset + PANGO_ASCENT(ink_rect)));
-  obj->Set(v8ctx, Nan::New<String>("actualBoundingBoxDescent").ToLocalChecked(),
-           Nan::New<Number>(PANGO_DESCENT(ink_rect) - y_offset));
-  obj->Set(v8ctx, Nan::New<String>("emHeightAscent").ToLocalChecked(),
-           Nan::New<Number>(-(PANGO_ASCENT(logical_rect) - y_offset)));
-  obj->Set(v8ctx, Nan::New<String>("emHeightDescent").ToLocalChecked(),
-           Nan::New<Number>(PANGO_DESCENT(logical_rect) - y_offset));
-  obj->Set(v8ctx, Nan::New<String>("alphabeticBaseline").ToLocalChecked(),
-           Nan::New<Number>(-(pango_font_metrics_get_ascent(metrics) * inverse_pango_scale - y_offset)));
+  Nan::Set(obj,
+           Nan::New<String>("width").ToLocalChecked(),
+           Nan::New<Number>(logical_rect.width)).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("actualBoundingBoxLeft").ToLocalChecked(),
+           Nan::New<Number>(x_offset - PANGO_LBEARING(logical_rect))).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("actualBoundingBoxRight").ToLocalChecked(),
+           Nan::New<Number>(x_offset + PANGO_RBEARING(logical_rect))).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("actualBoundingBoxAscent").ToLocalChecked(),
+           Nan::New<Number>(y_offset + PANGO_ASCENT(ink_rect))).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("actualBoundingBoxDescent").ToLocalChecked(),
+           Nan::New<Number>(PANGO_DESCENT(ink_rect) - y_offset)).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("emHeightAscent").ToLocalChecked(),
+           Nan::New<Number>(-(PANGO_ASCENT(logical_rect) - y_offset))).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("emHeightDescent").ToLocalChecked(),
+           Nan::New<Number>(PANGO_DESCENT(logical_rect) - y_offset)).ToChecked();
+  Nan::Set(obj,
+           Nan::New<String>("alphabeticBaseline").ToLocalChecked(),
+           Nan::New<Number>(-(pango_font_metrics_get_ascent(metrics) * inverse_pango_scale - y_offset))).ToChecked();
 
   pango_font_metrics_unref(metrics);
 
@@ -2750,9 +2757,9 @@ NAN_METHOD(Context2d::GetLineDash) {
   cairo_get_dash(ctx, a.data(), NULL);
 
   Local<Array> dash = Nan::New<Array>(dashes);
-  Local<Context> v8ctx = Nan::GetCurrentContext();
-  for (int i=0; i<dashes; i++)
-      dash->Set(v8ctx, Nan::New<Number>(i), Nan::New<Number>(a[i]));
+  for (int i=0; i<dashes; i++) {
+    Nan::Set(dash, Nan::New<Number>(i), Nan::New<Number>(a[i])).ToChecked();
+  }
 
   info.GetReturnValue().Set(dash);
 }
