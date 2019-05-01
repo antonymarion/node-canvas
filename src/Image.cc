@@ -250,8 +250,7 @@ NAN_METHOD(Image::SetSource){
   }
 
   if (status) {
-    Local<Context> v8ctx = Nan::GetCurrentContext();
-    Local<Value> onerrorFn = info.This()->Get(v8ctx, Nan::New("onerror").ToLocalChecked()).ToLocalChecked();
+    Local<Value> onerrorFn = Nan::Get(info.This(), Nan::New("onerror").ToLocalChecked()).ToLocalChecked();
     if (onerrorFn->IsFunction()) {
       Local<Value> argv[1];
       CanvasError errorInfo = img->errorInfo;
@@ -267,8 +266,7 @@ NAN_METHOD(Image::SetSource){
     }
   } else {
     img->loaded();
-    Local<Context> v8ctx = Nan::GetCurrentContext();
-    Local<Value> onloadFn = info.This()->Get(v8ctx, Nan::New("onload").ToLocalChecked()).ToLocalChecked();
+    Local<Value> onloadFn = Nan::Get(info.This(), Nan::New("onload").ToLocalChecked()).ToLocalChecked();
     if (onloadFn->IsFunction()) {
       Local<Context> ctx = Nan::GetCurrentContext();
       Nan::Call(onloadFn.As<Function>(), ctx->Global(), 0, NULL).ToLocalChecked();

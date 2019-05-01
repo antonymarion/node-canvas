@@ -14,6 +14,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 * Fix object literal & arrow function syntax usage for IE.
 * Properly check return value from `Set` and `Call`.
+* Use `Get` version from `Nan` instead of `v8`.
 
 2.4.1
 ==================

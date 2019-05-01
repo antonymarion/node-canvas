@@ -685,10 +685,9 @@ NAN_METHOD(Context2d::New) {
   if (isImageBackend) {
     cairo_format_t format = ImageBackend::DEFAULT_FORMAT;
     if (info[1]->IsObject()) {
-      Local<Context> v8ctx = Nan::GetCurrentContext();
       Local<Object> ctxAttributes = Nan::To<Object>(info[1]).ToLocalChecked();
 
-      Local<Value> pixelFormat = ctxAttributes->Get(v8ctx, Nan::New("pixelFormat").ToLocalChecked()).ToLocalChecked();
+      Local<Value> pixelFormat = Nan::Get(ctxAttributes, Nan::New("pixelFormat").ToLocalChecked()).ToLocalChecked();
       if (pixelFormat->IsString()) {
         Nan::Utf8String utf8PixelFormat(pixelFormat);
         if (!strcmp(*utf8PixelFormat, "RGBA32")) format = CAIRO_FORMAT_ARGB32;
@@ -702,7 +701,7 @@ NAN_METHOD(Context2d::New) {
       }
 
       // alpha: false forces use of RGB24
-      Local<Value> alpha = ctxAttributes->Get(v8ctx, Nan::New("alpha").ToLocalChecked()).ToLocalChecked();
+      Local<Value> alpha = Nan::Get(ctxAttributes, Nan::New("alpha").ToLocalChecked()).ToLocalChecked();
       if (alpha->IsBoolean() && !Nan::To<bool>(alpha).FromMaybe(false)) {
         format = CAIRO_FORMAT_RGB24;
       }
@@ -1142,10 +1141,9 @@ NAN_METHOD(Context2d::CreateImageData){
   int32_t width, height;
 
   if (info[0]->IsObject()) {
-    Local<Context> ctx = Nan::GetCurrentContext();
     Local<Object> obj = Nan::To<Object>(info[0]).ToLocalChecked();
-    width = Nan::To<int32_t>(obj->Get(ctx, Nan::New("width").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
-    height = Nan::To<int32_t>(obj->Get(ctx, Nan::New("height").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
+    width = Nan::To<int32_t>(Nan::Get(obj, Nan::New("width").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
+    height = Nan::To<int32_t>(Nan::Get(obj, Nan::New("height").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
   } else {
     width = Nan::To<int32_t>(info[0]).FromMaybe(0);
     height = Nan::To<int32_t>(info[1]).FromMaybe(0);
@@ -1777,21 +1775,22 @@ NAN_GETTER(Context2d::GetCurrentTransform) {
 NAN_SETTER(Context2d::SetCurrentTransform) {
   Context2d *context = Nan::ObjectWrap::Unwrap<Context2d>(info.This());
   Local<Context> ctx = Nan::GetCurrentContext();
+  Local<Object> mat = Nan::To<Object>(value).ToLocalChecked();
 
 #if NODE_MAJOR_VERSION >= 8
-  if (!Nan::To<Object>(value).ToLocalChecked()->InstanceOf(ctx, _DOMMatrix.Get(Isolate::GetCurrent())).ToChecked())
+  if (!mat->InstanceOf(ctx, _DOMMatrix.Get(Isolate::GetCurrent())).ToChecked()) {
     return Nan::ThrowTypeError("Expected DOMMatrix");
+  }
 #endif
-  Local<Object> mat = Nan::To<Object>(value).ToLocalChecked();
 
   cairo_matrix_t matrix;
   cairo_matrix_init(&matrix,
-    Nan::To<double>(mat->Get(ctx, Nan::New("a").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
-    Nan::To<double>(mat->Get(ctx, Nan::New("b").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
-    Nan::To<double>(mat->Get(ctx, Nan::New("c").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
-    Nan::To<double>(mat->Get(ctx, Nan::New("d").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
-    Nan::To<double>(mat->Get(ctx, Nan::New("e").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
-    Nan::To<double>(mat->Get(ctx, Nan::New("f").ToLocalChecked()).ToLocalChecked()).FromMaybe(0)
+    Nan::To<double>(Nan::Get(mat, Nan::New("a").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
+    Nan::To<double>(Nan::Get(mat, Nan::New("b").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
+    Nan::To<double>(Nan::Get(mat, Nan::New("c").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
+    Nan::To<double>(Nan::Get(mat, Nan::New("d").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
+    Nan::To<double>(Nan::Get(mat, Nan::New("e").ToLocalChecked()).ToLocalChecked()).FromMaybe(0),
+    Nan::To<double>(Nan::Get(mat, Nan::New("f").ToLocalChecked()).ToLocalChecked()).FromMaybe(0)
   );
 
   cairo_transform(context->context(), &matrix);
@@ -2509,20 +2508,16 @@ NAN_SETTER(Context2d::SetFont) {
   const int argc = 1;
   Local<Value> argv[argc] = { value };
 
-  MaybeLocal<Value> mparsed = _parseFont.Get(iso)->Call(ctx, ctx->Global(), argc, argv);
-  if (mparsed.IsEmpty()) return;
-  Local<Value> mparsedChecked = mparsed.ToLocalChecked();
+  Local<Value> mparsed = Nan::Call(_parseFont.Get(iso), ctx->Global(), argc, argv).ToLocalChecked();
   // parseFont returns undefined for invalid CSS font strings
-  if (mparsedChecked->IsUndefined()) return;
-  MaybeLocal<Object> mfont = Nan::To<Object>(mparsedChecked);
-  if (mfont.IsEmpty()) return;
-  Local<Object> font = mfont.ToLocalChecked();
+  if (mparsed->IsUndefined()) return;
+  Local<Object> font = Nan::To<Object>(mparsed).ToLocalChecked();
 
-  Nan::Utf8String weight(font->Get(ctx, Nan::New("weight").ToLocalChecked()).ToLocalChecked());
-  Nan::Utf8String style(font->Get(ctx, Nan::New("style").ToLocalChecked()).ToLocalChecked());
-  double size = Nan::To<double>(font->Get(ctx, Nan::New("size").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
-  Nan::Utf8String unit(font->Get(ctx, Nan::New("unit").ToLocalChecked()).ToLocalChecked());
-  Nan::Utf8String family(font->Get(ctx, Nan::New("family").ToLocalChecked()).ToLocalChecked());
+  Nan::Utf8String weight(Nan::Get(font, Nan::New("weight").ToLocalChecked()).ToLocalChecked());
+  Nan::Utf8String style(Nan::Get(font, Nan::New("style").ToLocalChecked()).ToLocalChecked());
+  double size = Nan::To<double>(Nan::Get(font, Nan::New("size").ToLocalChecked()).ToLocalChecked()).FromMaybe(0);
+  Nan::Utf8String unit(Nan::Get(font, Nan::New("unit").ToLocalChecked()).ToLocalChecked());
+  Nan::Utf8String family(Nan::Get(font, Nan::New("family").ToLocalChecked()).ToLocalChecked());
 
   Context2d *context = Nan::ObjectWrap::Unwrap<Context2d>(info.This());
 
@@ -2724,9 +2719,8 @@ NAN_METHOD(Context2d::SetLineDash) {
   uint32_t dashes = dash->Length() & 1 ? dash->Length() * 2 : dash->Length();
   uint32_t zero_dashes = 0;
   std::vector<double> a(dashes);
-  Local<Context> v8ctx = Nan::GetCurrentContext();
   for (uint32_t i=0; i<dashes; i++) {
-    Local<Value> d = dash->Get(v8ctx, i % dash->Length()).ToLocalChecked();
+    Local<Value> d = Nan::Get(dash, i % dash->Length()).ToLocalChecked();
     if (!d->IsNumber()) return;
     a[i] = Nan::To<double>(d).FromMaybe(0);
     if (a[i] == 0) zero_dashes++;
