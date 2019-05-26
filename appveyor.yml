@@ -51,7 +51,7 @@ environment:
       nodejs_version: 10
       platform: x64
 image:
-  - Visual Studio 2013
+#  - Visual Studio 2013
   - Visual Studio 2015
 install:
   - ps: Install-Product node $env:nodejs_version x64
@@ -59,6 +59,7 @@ install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
   # Prepend 2015 and 2013 tools. Harmless when the path for the other version doesn't exist.
   - set "PATH=%ProgramFiles(x86)%\MSBuild\14.0\Bin;%ProgramFiles(x86)%\MSBuild\12.0\Bin;%PATH%"
+  - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64'
   # Upgrade npm to latest
   - npm install --loglevel error -g npm 
   - set "PATH=%APPDATA%\npm;%PATH%"
