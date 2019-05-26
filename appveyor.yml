@@ -82,4 +82,4 @@ test_script:
   - npm i -g node-gyp
   - node-gyp configure
   - npm i -g mocha
-  - cmd: mocha test/*.test.js
+  - mocha test/*.test.js
