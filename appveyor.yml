@@ -50,6 +50,11 @@ environment:
     - electron_version: "4.2.2"
       nodejs_version: 10
       platform: x64
+  allow_failures:
+    - platform: x86
+      configuration: Debug
+    - platform: x64
+      configuration: Release
 image:
 #  - Visual Studio 2013
   - Visual Studio 2015
