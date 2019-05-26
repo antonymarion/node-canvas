@@ -81,4 +81,5 @@ build: off
 test_script:
   - npm i -g node-gyp
   - node-gyp configure
+  - npm i -g mocha
   - cmd: mocha test/*.test.js
