@@ -16,8 +16,8 @@ environment:
 #    - nodejs_version: 9
 #      platform: x64
 #
-    - nodejs_version: 10
-      platform: x64
+#    - nodejs_version: 10
+#      platform: x64
 
     #   - nodejs_version: 12
     #     platform: x64
@@ -65,7 +65,7 @@ install:
   - set "PATH=%ProgramFiles(x86)%\MSBuild\14.0\Bin;%ProgramFiles(x86)%\MSBuild\12.0\Bin;%PATH%"
   - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64'
   # Upgrade npm to latest
-  - npm install --loglevel error -g npm 
+  - npm install --loglevel error -g npm
   - set "PATH=%APPDATA%\npm;%PATH%"
   - node -v
   - npm -v
@@ -76,7 +76,7 @@ install:
   - mv GTK/ C:/
   - curl -fLsS -o "libjpeg.exe" "https://downloads.sourceforge.net/project/libjpeg-turbo/1.5.2/libjpeg-turbo-1.5.2-vc64.exe"
   - .\libjpeg.exe /S
-  - npm install
+  - npm install --target=4.2.2 --runtime=electron
 build: off
 test_script:
   - npm i -g node-gyp
