@@ -74,4 +74,6 @@ install:
   - npm install
 build: off
 test_script:
+  - npm i -g node-gyp
+  - node-gyp configure
   - cmd: npm test
